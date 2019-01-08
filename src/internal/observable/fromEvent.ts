@@ -13,26 +13,46 @@ export interface NodeStyleEventEmitter {
 
 export type NodeEventHandler = (...args: any[]) => void;
 
-export type JQueryStyleEventEmitter = {
+// For APIs that implement `addListener` and `removeListener` methods that may
+// not use the same arguments or return EventEmitter values
+// such as React Native
+export interface NodeCompatibleEventEmitter {
+  addListener: (eventName: string, handler: NodeEventHandler) => void | {};
+  removeListener: (eventName: string, handler: NodeEventHandler) => void | {};
+}
+
+export interface JQueryStyleEventEmitter {
   on: (eventName: string, handler: Function) => void;
   off: (eventName: string, handler: Function) => void;
-};
+}
 
-export type EventTargetLike = EventTarget | NodeStyleEventEmitter | JQueryStyleEventEmitter | NodeList | HTMLCollection;
+export interface HasEventTargetAddRemove<E> {
+  addEventListener(type: string, listener: ((evt: E) => void) | null, options?: boolean | AddEventListenerOptions): void;
+  removeEventListener(type: string, listener?: ((evt: E) => void) | null, options?: EventListenerOptions | boolean): void;
+}
 
-export type EventListenerOptions = {
+export type EventTargetLike<T> = HasEventTargetAddRemove<T> | NodeStyleEventEmitter | NodeCompatibleEventEmitter | JQueryStyleEventEmitter;
+
+export type FromEventTarget<T> = EventTargetLike<T> | ArrayLike<EventTargetLike<T>>;
+
+export interface EventListenerOptions {
   capture?: boolean;
   passive?: boolean;
   once?: boolean;
-} | boolean;
+}
+
+export interface AddEventListenerOptions extends EventListenerOptions {
+  once?: boolean;
+  passive?: boolean;
+}
 
 /* tslint:disable:max-line-length */
-export function fromEvent<T>(target: EventTargetLike, eventName: string): Observable<T>;
+export function fromEvent<T>(target: FromEventTarget<T>, eventName: string): Observable<T>;
 /** @deprecated resultSelector no longer supported, pipe to map instead */
-export function fromEvent<T>(target: EventTargetLike, eventName: string, resultSelector: (...args: any[]) => T): Observable<T>;
-export function fromEvent<T>(target: EventTargetLike, eventName: string, options: EventListenerOptions): Observable<T>;
+export function fromEvent<T>(target: FromEventTarget<T>, eventName: string, resultSelector: (...args: any[]) => T): Observable<T>;
+export function fromEvent<T>(target: FromEventTarget<T>, eventName: string, options: EventListenerOptions): Observable<T>;
 /** @deprecated resultSelector no longer supported, pipe to map instead */
-export function fromEvent<T>(target: EventTargetLike, eventName: string, options: EventListenerOptions, resultSelector: (...args: any[]) => T): Observable<T>;
+export function fromEvent<T>(target: FromEventTarget<T>, eventName: string, options: EventListenerOptions, resultSelector: (...args: any[]) => T): Observable<T>;
 /* tslint:enable:max-line-length */
 
 /**
@@ -42,7 +62,7 @@ export function fromEvent<T>(target: EventTargetLike, eventName: string, options
  * <span class="informal">Creates an Observable from DOM events, or Node.js
  * EventEmitter events or others.</span>
  *
- * <img src="./img/fromEvent.png" width="100%">
+ * ![](fromEvent.png)
  *
  * `fromEvent` accepts as a first argument event target, which is an object with methods
  * for registering event handler functions. As a second argument it takes string that indicates
@@ -110,19 +130,22 @@ export function fromEvent<T>(target: EventTargetLike, eventName: string, options
  * installed and removed in each of elements.
  *
  *
- * @example <caption>Emits clicks happening on the DOM document</caption>
- * var clicks = fromEvent(document, 'click');
+ * ## Examples
+ * ### Emits clicks happening on the DOM document
+ * ```javascript
+ * const clicks = fromEvent(document, 'click');
  * clicks.subscribe(x => console.log(x));
  *
  * // Results in:
  * // MouseEvent object logged to console every time a click
  * // occurs on the document.
+ * ```
  *
- *
- * @example <caption>Use addEventListener with capture option</caption>
- * var clicksInDocument = fromEvent(document, 'click', true); // note optional configuration parameter
- *                                                                          // which will be passed to addEventListener
- * var clicksInDiv = fromEvent(someDivInDocument, 'click');
+ * ### Use addEventListener with capture option
+ * ```javascript
+ * const clicksInDocument = fromEvent(document, 'click', true); // note optional configuration parameter
+ *                                                              // which will be passed to addEventListener
+ * const clicksInDiv = fromEvent(someDivInDocument, 'click');
  *
  * clicksInDocument.subscribe(() => console.log('document'));
  * clicksInDiv.subscribe(() => console.log('div'));
@@ -133,12 +156,13 @@ export function fromEvent<T>(target: EventTargetLike, eventName: string, options
  * // Since we specified optional `capture` option, document
  * // will catch event when it goes DOWN DOM tree, so console
  * // will log "document" and then "div".
+ * ```
  *
  * @see {@link bindCallback}
  * @see {@link bindNodeCallback}
  * @see {@link fromEventPattern}
  *
- * @param {EventTargetLike} target The DOM EventTarget, Node.js
+ * @param {FromEventTarget<T>} target The DOM EventTarget, Node.js
  * EventEmitter, JQuery-like event target, NodeList or HTMLCollection to attach the event handler to.
  * @param {string} eventName The event name of interest, being emitted by the
  * `target`.
@@ -147,7 +171,7 @@ export function fromEvent<T>(target: EventTargetLike, eventName: string, options
  * @name fromEvent
  */
 export function fromEvent<T>(
-  target: EventTargetLike,
+  target: FromEventTarget<T>,
   eventName: string,
   options?: EventListenerOptions | ((...args: any[]) => T),
   resultSelector?: ((...args: any[]) => T)
@@ -177,18 +201,14 @@ export function fromEvent<T>(
   });
 }
 
-function setupSubscription<T>(sourceObj: EventTargetLike, eventName: string,
-                              handler: Function, subscriber: Subscriber<T>,
+function setupSubscription<T>(sourceObj: FromEventTarget<T>, eventName: string,
+                              handler: (...args: any[]) => void, subscriber: Subscriber<T>,
                               options?: EventListenerOptions) {
   let unsubscribe: () => void;
-  if (isNodeList(sourceObj) || isHTMLCollection(sourceObj)) {
-    for (let i = 0, len = sourceObj.length; i < len; i++) {
-      setupSubscription(sourceObj[i], eventName, handler, subscriber, options);
-    }
-  } else if (isEventTarget(sourceObj)) {
+  if (isEventTarget(sourceObj)) {
     const source = sourceObj;
-    sourceObj.addEventListener(eventName, handler as EventListener, options);
-    unsubscribe = () => source.removeEventListener(eventName, handler as EventListener, options);
+    sourceObj.addEventListener(eventName, handler, options);
+    unsubscribe = () => source.removeEventListener(eventName, handler, options);
   } else if (isJQueryStyleEventEmitter(sourceObj)) {
     const source = sourceObj;
     sourceObj.on(eventName, handler);
@@ -197,6 +217,10 @@ function setupSubscription<T>(sourceObj: EventTargetLike, eventName: string,
     const source = sourceObj;
     sourceObj.addListener(eventName, handler as NodeEventHandler);
     unsubscribe = () => source.removeListener(eventName, handler as NodeEventHandler);
+  } else if (sourceObj && (sourceObj as any).length) {
+    for (let i = 0, len = (sourceObj as any).length; i < len; i++) {
+      setupSubscription(sourceObj[i], eventName, handler, subscriber, options);
+    }
   } else {
     throw new TypeError('Invalid event target');
   }
@@ -205,21 +229,13 @@ function setupSubscription<T>(sourceObj: EventTargetLike, eventName: string,
 }
 
 function isNodeStyleEventEmitter(sourceObj: any): sourceObj is NodeStyleEventEmitter {
-  return !!sourceObj && typeof sourceObj.addListener === 'function' && typeof sourceObj.removeListener === 'function';
+  return sourceObj && typeof sourceObj.addListener === 'function' && typeof sourceObj.removeListener === 'function';
 }
 
 function isJQueryStyleEventEmitter(sourceObj: any): sourceObj is JQueryStyleEventEmitter {
-  return !!sourceObj && typeof sourceObj.on === 'function' && typeof sourceObj.off === 'function';
+  return sourceObj && typeof sourceObj.on === 'function' && typeof sourceObj.off === 'function';
 }
 
-function isNodeList(sourceObj: any): sourceObj is NodeList {
-  return !!sourceObj && toString.call(sourceObj) === '[object NodeList]';
-}
-
-function isHTMLCollection(sourceObj: any): sourceObj is HTMLCollection {
-  return !!sourceObj && toString.call(sourceObj) === '[object HTMLCollection]';
-}
-
-function isEventTarget(sourceObj: any): sourceObj is EventTarget {
-  return !!sourceObj && typeof sourceObj.addEventListener === 'function' && typeof sourceObj.removeEventListener === 'function';
+function isEventTarget(sourceObj: any): sourceObj is HasEventTargetAddRemove<any> {
+  return sourceObj && typeof sourceObj.addEventListener === 'function' && typeof sourceObj.removeEventListener === 'function';
 }

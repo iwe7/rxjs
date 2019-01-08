@@ -7,6 +7,10 @@ import { ObserveOnSubscriber } from './operators/observeOn';
 import { ObjectUnsubscribedError } from './util/ObjectUnsubscribedError';
 import { SubjectSubscription } from './SubjectSubscription';
 /**
+ * A variant of Subject that "replays" or emits old values to new subscribers.
+ * It buffers a set number of values and will emit those values immediately to
+ * any new subscribers in addition to emitting new values to existing subscribers.
+ *
  * @class ReplaySubject<T>
  */
 export class ReplaySubject<T> extends Subject<T> {
@@ -49,7 +53,8 @@ export class ReplaySubject<T> extends Subject<T> {
     super.next(value);
   }
 
-  protected _subscribe(subscriber: Subscriber<T>): Subscription {
+  /** @deprecated This is an internal implementation detail, do not use. */
+  _subscribe(subscriber: Subscriber<T>): Subscription {
     // When `_infiniteTimeWindow === true` then the buffer is already trimmed
     const _infiniteTimeWindow = this._infiniteTimeWindow;
     const _events = _infiniteTimeWindow ? this._events : this._trimBufferThenGetEvents();

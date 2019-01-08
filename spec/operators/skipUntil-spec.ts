@@ -1,5 +1,6 @@
+import { expect } from 'chai';
 import { hot, cold, expectObservable, expectSubscriptions } from '../helpers/marble-testing';
-import { Observable, of, Subject } from 'rxjs';
+import { concat, defer, Observable, of, Subject } from 'rxjs';
 import { skipUntil, mergeMap } from 'rxjs/operators';
 
 declare function asDiagram(arg: string): Function;
@@ -28,6 +29,16 @@ describe('skipUntil', () => {
     expectObservable(e1.pipe(skipUntil(skip))).toBe(expected);
     expectSubscriptions(e1.subscriptions).toBe(e1subs);
     expectSubscriptions(skip.subscriptions).toBe(skipSubs);
+  });
+
+  it('should emit elements after a synchronous notifier emits', () => {
+    const values: string[] = [];
+
+    of('a', 'b').pipe(skipUntil(of('x'))).subscribe(
+      value => values.push(value),
+      err => { throw err; },
+      () => expect(values).to.deep.equal(['a', 'b'])
+    );
   });
 
   it('should raise an error if notifier throws and source is hot', () => {
@@ -234,5 +245,26 @@ describe('skipUntil', () => {
 
     expectObservable(result).toBe(expected);
     expectSubscriptions(notifier.subscriptions).toBe(nSubs);
+  });
+
+  it('should stop listening to a synchronous notifier after its first nexted value', () => {
+    // const source =   hot('-^-o---o---o---o---o---o---|');
+    const sideEffects: number[] = [];
+    const synchronousNotifer = concat(
+      defer(() => {
+        sideEffects.push(1);
+        return of(1);
+      }),
+      defer(() => {
+        sideEffects.push(2);
+        return of(2);
+      }),
+      defer(() => {
+        sideEffects.push(3);
+        return of(3);
+      })
+    );
+    of(null).pipe(skipUntil(synchronousNotifer)).subscribe(() => { /* noop */ });
+    expect(sideEffects).to.deep.equal([1]);
   });
 });

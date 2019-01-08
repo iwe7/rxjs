@@ -1,3 +1,243 @@
+<a name="6.3.3"></a>
+## [6.3.3](https://github.com/reactivex/rxjs/compare/6.3.2...6.3.3) (2018-09-25)
+
+
+### Bug Fixes
+
+* **pipe:** align static pipe to Observable pipe rest parameters overl… ([#4112](https://github.com/reactivex/rxjs/issues/4112)) ([8c607e9](https://github.com/reactivex/rxjs/commit/8c607e9)), closes [#4109](https://github.com/reactivex/rxjs/issues/4109) [#4109](https://github.com/reactivex/rxjs/issues/4109)
+* **RxJS:** each instance of RxJS now has a unique Subscriber symbol ([0972c56](https://github.com/reactivex/rxjs/commit/0972c56))
+* **subscribe:** report errors that occur in subscribe after the initial error ([#4089](https://github.com/reactivex/rxjs/issues/4089)) ([9b4b2bc](https://github.com/reactivex/rxjs/commit/9b4b2bc)), closes [#3803](https://github.com/reactivex/rxjs/issues/3803)
+* **Subscriber:** Can no longer subscribe to itself in a circular manner ([#4106](https://github.com/reactivex/rxjs/issues/4106)) ([e623ec6](https://github.com/reactivex/rxjs/commit/e623ec6)), closes [#4095](https://github.com/reactivex/rxjs/issues/4095)
+* **Subscriber:** use only local Subscriber instances ([50ee0a7](https://github.com/reactivex/rxjs/commit/50ee0a7))
+* **TypeScript:** ensure RxJS builds with TS@next as well ([f03e790](https://github.com/reactivex/rxjs/commit/f03e790))
+
+
+
+<a name="6.3.2"></a>
+## [6.3.2](https://github.com/reactivex/rxjs/compare/6.3.1...6.3.2) (2018-09-04)
+
+
+### Bug Fixes
+
+* **node:** will no longer error mixing RxJS 6.3 and 6.2 ([#4078](https://github.com/reactivex/rxjs/issues/4078)) ([69d9ccf](https://github.com/reactivex/rxjs/commit/69d9ccf)), closes [#4077](https://github.com/reactivex/rxjs/issues/4077)
+
+
+
+<a name="6.3.1"></a>
+## [6.3.1](https://github.com/reactivex/rxjs/compare/6.3.0...6.3.1) (2018-08-31)
+
+
+### Bug Fixes
+
+* **mergeMap:** fix nested mergeMaps ([#4072](https://github.com/reactivex/rxjs/issues/4072)) ([0ab701b](https://github.com/reactivex/rxjs/commit/0ab701b)), closes [#4071](https://github.com/reactivex/rxjs/issues/4071)
+
+
+
+<a name="6.3.0"></a>
+# [6.3.0](https://github.com/reactivex/rxjs/compare/6.2.2...6.3.0) (2018-08-30)
+
+
+### Bug Fixes
+
+* **find:** unsubscribe from source when found ([#3968](https://github.com/reactivex/rxjs/issues/3968)) ([fd01f7b](https://github.com/reactivex/rxjs/commit/fd01f7b))
+* convert [@internal](https://github.com/internal) comment to JSDoc ([#3932](https://github.com/reactivex/rxjs/issues/3932)) ([f8a9d6e](https://github.com/reactivex/rxjs/commit/f8a9d6e))
+* **AjaxObservable:** notify with error if fails to parse json response ([#3139](https://github.com/reactivex/rxjs/issues/3139)) ([d8231e2](https://github.com/reactivex/rxjs/commit/d8231e2)), closes [#3138](https://github.com/reactivex/rxjs/issues/3138)
+* **catchError:** stop listening to a synchronous inner-obervable when unsubscribed ([456ef33](https://github.com/reactivex/rxjs/commit/456ef33))
+* **distinctUntilKeyChanged:** improved key typing with keyof T ([#3988](https://github.com/reactivex/rxjs/issues/3988)) ([4ec4ff1](https://github.com/reactivex/rxjs/commit/4ec4ff1))
+* **exhaustMap:** stop listening to a synchronous inner-obervable when unsubscribed ([ee1a339](https://github.com/reactivex/rxjs/commit/ee1a339))
+* **find:** add undefined to return type ([#3970](https://github.com/reactivex/rxjs/issues/3970)) ([5a6c90f](https://github.com/reactivex/rxjs/commit/5a6c90f)), closes [#3969](https://github.com/reactivex/rxjs/issues/3969)
+* **IE10:** Remove dependency on Object.setPrototypeOf ([#3967](https://github.com/reactivex/rxjs/issues/3967)) ([5c52a73](https://github.com/reactivex/rxjs/commit/5c52a73)), closes [#3966](https://github.com/reactivex/rxjs/issues/3966)
+* **mergeAll:** add source subscription to composite before actually subscribing ([#2479](https://github.com/reactivex/rxjs/issues/2479)) ([40852ff](https://github.com/reactivex/rxjs/commit/40852ff)), closes [#2476](https://github.com/reactivex/rxjs/issues/2476)
+* **mergeScan:** stop listening to a synchronous inner-obervable when unsubscribed ([c4002f3](https://github.com/reactivex/rxjs/commit/c4002f3))
+* **Observable:** forEach will no longer next values after an error ([b4bad1f](https://github.com/reactivex/rxjs/commit/b4bad1f))
+* **Observable:** use more granular Observable exports in compat mode ([#3974](https://github.com/reactivex/rxjs/issues/3974)) ([3f75564](https://github.com/reactivex/rxjs/commit/3f75564))
+* **onErrorResumeNext:** stop listening to a synchronous inner-obervable when unsubscribed ([1d14277](https://github.com/reactivex/rxjs/commit/1d14277))
+* **pipe:** replace rest parameters overload ([#3945](https://github.com/reactivex/rxjs/issues/3945)) ([872b0ec](https://github.com/reactivex/rxjs/commit/872b0ec)), closes [#3841](https://github.com/reactivex/rxjs/issues/3841)
+* **skipUntil:** stop listening to a synchronous notifier after its first nexted value ([1c257db](https://github.com/reactivex/rxjs/commit/1c257db))
+* **startWith:** allow empty type signature and passing a different type ([b7866a0](https://github.com/reactivex/rxjs/commit/b7866a0))
+* **subscribable:** make subscribe() signature match Observable ([#4050](https://github.com/reactivex/rxjs/issues/4050)) ([865d8d7](https://github.com/reactivex/rxjs/commit/865d8d7)), closes [#3891](https://github.com/reactivex/rxjs/issues/3891)
+* **subscriber:** unsubscribe parents on error/complete ([ad8131b](https://github.com/reactivex/rxjs/commit/ad8131b))
+* **switchMap:** stop listening to a synchronous inner-obervable when unsubscribed ([260d52a](https://github.com/reactivex/rxjs/commit/260d52a))
+* **takeUntil:** takeUntil should subscribe to the source if notifier sync completes without emitting ([#4039](https://github.com/reactivex/rxjs/issues/4039)) ([21fd0b4](https://github.com/reactivex/rxjs/commit/21fd0b4)), closes [#3504](https://github.com/reactivex/rxjs/issues/3504)
+* **testscheduler:** type arguments to Observable creation functions ([#3928](https://github.com/reactivex/rxjs/issues/3928)) ([0e30ef1](https://github.com/reactivex/rxjs/commit/0e30ef1))
+
+
+### Features
+
+* **delayWhen:** add index to the selector function ([#2473](https://github.com/reactivex/rxjs/issues/2473)) ([0979d31](https://github.com/reactivex/rxjs/commit/0979d31))
+* **forEach:** deprecating passing promise constructor ([5178ab9](https://github.com/reactivex/rxjs/commit/5178ab9))
+* **TestScheduler:** Add subscription schedule to expectObservable ([#3997](https://github.com/reactivex/rxjs/issues/3997)) ([0d20255](https://github.com/reactivex/rxjs/commit/0d20255))
+
+
+
+<a name="6.2.2"></a>
+## [6.2.2](https://github.com/reactivex/rxjs/compare/6.2.1...6.2.2) (2018-07-13)
+
+### Bug Fixes
+
+* **first:** improved type gaurds for TypeScript ([3e12f7a](https://github.com/reactivex/rxjs/commit/3e12f7a))
+* **last:** improved type gaurds for TypeScript ([3e12f7a](https://github.com/reactivex/rxjs/commit/3e12f7a))
+
+
+
+<a name="6.2.1"></a>
+## [6.2.1](https://github.com/reactivex/rxjs/compare/6.2.0...6.2.1) (2018-06-12)
+
+
+### Bug Fixes
+
+* **ci:** do not trigger postbuild script on PR ([f82c085](https://github.com/reactivex/rxjs/commit/f82c085))
+* **delayWhen:** Emit source value if duration selector completes synchronously ([#3664](https://github.com/reactivex/rxjs/issues/3664)) ([2c43af7](https://github.com/reactivex/rxjs/commit/2c43af7)), closes [#3663](https://github.com/reactivex/rxjs/issues/3663)
+* **docs:** fix broken github links ([#3802](https://github.com/reactivex/rxjs/issues/3802)) ([9f9bf9b](https://github.com/reactivex/rxjs/commit/9f9bf9b))
+* **docs:** fix code examples ([#3784](https://github.com/reactivex/rxjs/issues/3784)) ([a95441b](https://github.com/reactivex/rxjs/commit/a95441b))
+* **from:** Objects implementing Symbol.observable take precedence over other types ([80ceea0](https://github.com/reactivex/rxjs/commit/80ceea0))
+* **fromEvent:** Support React Native and node-compatible event sources. ([#3821](https://github.com/reactivex/rxjs/issues/3821)) ([1969f18](https://github.com/reactivex/rxjs/commit/1969f18))
+* **Observable.prototype.pipe:** TS typings now more correct for >8 parameters ([#3789](https://github.com/reactivex/rxjs/issues/3789)) ([ad010ea](https://github.com/reactivex/rxjs/commit/ad010ea))
+* **subscribe:** ignore syncError when deprecated ([#3749](https://github.com/reactivex/rxjs/issues/3749)) ([f94560c](https://github.com/reactivex/rxjs/commit/f94560c))
+* **Symbol.observable:** make observable declaration readonly ([#3697](https://github.com/reactivex/rxjs/issues/3697)) ([#3773](https://github.com/reactivex/rxjs/issues/3773)) ([e1c203f](https://github.com/reactivex/rxjs/commit/e1c203f))
+* **TypeScript:** resolved typings issue for TS 3.0 ([bf2cdeb](https://github.com/reactivex/rxjs/commit/bf2cdeb))
+* **typings:** allow bufferCreationInterval null for bufferTime ([#3734](https://github.com/reactivex/rxjs/issues/3734)) ([0bda9cd](https://github.com/reactivex/rxjs/commit/0bda9cd)), closes [#3728](https://github.com/reactivex/rxjs/issues/3728)
+
+
+### Performance Improvements
+
+* remove comments from js-files ([#3760](https://github.com/reactivex/rxjs/issues/3760)) ([bb2c334](https://github.com/reactivex/rxjs/commit/bb2c334))
+
+
+
+<a name="6.2.0"></a>
+# [6.2.0](https://github.com/ReactiveX/RxJS/compare/6.1.0...6.2.0) (2018-05-22)
+
+
+### Bug Fixes
+
+* **ajax:** Handle timeouts as errors ([#3653](https://github.com/ReactiveX/RxJS/issues/3653)) ([e4128ea](https://github.com/ReactiveX/RxJS/commit/e4128ea))
+* **ajax:** RxJS v6 TimeoutError is missing name property ([576d943](https://github.com/ReactiveX/RxJS/commit/576d943))
+* **isObservable:** Fix throwing error when testing isObservable(null) ([#3688](https://github.com/ReactiveX/RxJS/issues/3688)) ([c9acc61](https://github.com/ReactiveX/RxJS/commit/c9acc61))
+* **range:** Range should be same for every subscriber ([#3707](https://github.com/ReactiveX/RxJS/issues/3707)) ([9642133](https://github.com/ReactiveX/RxJS/commit/9642133))
+* **skipUntil:** fix skipUntil when innerSubscription is null ([#3686](https://github.com/ReactiveX/RxJS/issues/3686)) ([4226432](https://github.com/ReactiveX/RxJS/commit/4226432))
+* **TestScheduler:** restore run changes upon error ([27cb9b6](https://github.com/ReactiveX/RxJS/commit/27cb9b6))
+* **TimeoutError:** Add name to TimeoutError ([44042d0](https://github.com/ReactiveX/RxJS/commit/44042d0))
+* **WebSocketSubject:** Check to see if WebSocket exists in global scope ([#3694](https://github.com/ReactiveX/RxJS/issues/3694)) ([2db0788](https://github.com/ReactiveX/RxJS/commit/2db0788))
+
+
+### Features
+
+* **endWith:** add new operator endWith ([#3679](https://github.com/ReactiveX/RxJS/issues/3679)) ([537fe7d](https://github.com/ReactiveX/RxJS/commit/537fe7d))
+
+
+
+<a name="6.1.0"></a>
+# [6.1.0](https://github.com/ReactiveX/RxJS/compare/6.0.0...6.1.0) (2018-05-03)
+
+
+### Bug Fixes
+
+* **audit:** will not crash if duration is synchronous ([#3608](https://github.com/ReactiveX/RxJS/issues/3608)) ([76b7e27](https://github.com/ReactiveX/RxJS/commit/76b7e27)), closes [#2743](https://github.com/ReactiveX/RxJS/issues/2743)
+* **delay:** fix memory leak ([#3605](https://github.com/ReactiveX/RxJS/issues/3605)) ([96f05b0](https://github.com/ReactiveX/RxJS/commit/96f05b0))
+
+
+### Features
+
+* **isObservable:** a new method for checking to see if an object is an RxJS Observable ([edb33e5](https://github.com/ReactiveX/RxJS/commit/edb33e5))
+
+
+
+<a name="6.0.0"></a>
+# [6.0.0](https://github.com/ReactiveX/RxJS/compare/6.0.0-uncanny-rc.7...v6.0.0) (2018-04-24)
+
+
+### Bug Fixes
+
+* **websocket:** no longer throws errors in operators applied to it ([#3577](https://github.com/ReactiveX/RxJS/issues/3577)) ([cb38ddf](https://github.com/ReactiveX/RxJS/commit/cb38ddf))
+
+
+### Code Refactoring
+
+* **webSocket:** rename back to webSocket ala 5.0 ([#3590](https://github.com/ReactiveX/RxJS/issues/3590)) ([d5658fe](https://github.com/ReactiveX/RxJS/commit/d5658fe))
+
+
+### Features
+
+* **testing:** Add testScheduler.run() helper ([2d5b3b2](https://github.com/ReactiveX/RxJS/commit/2d5b3b2))
+* **testing:** testScheduler.run() supports time progression syntax ([9322b7d](https://github.com/ReactiveX/RxJS/commit/9322b7d))
+
+
+### BREAKING CHANGES
+
+* **webSocket:** UNBREAKING websocket to be named `webSocket` again, just like it was in 5.0. Now you should import from `rxjs/webSocket`
+
+
+
+<a name="6.0.0-uncanny-rc.7"></a>
+# [6.0.0-uncanny-rc.7](https://github.com/ReactiveX/RxJS/compare/6.0.0-ucandoit-rc.6...v6.0.0-uncanny-rc.7) (2018-04-13)
+
+
+### Bug Fixes
+
+* **interop:** functions with `[Symbol.observable]` on them will now be accepted in operators like `mergeMap`, `from`, etc ([#3562](https://github.com/ReactiveX/RxJS/issues/3562)) ([c9570df](https://github.com/ReactiveX/RxJS/commit/c9570df))
+* **migrations:** change the version the migration applies to ([#3564](https://github.com/ReactiveX/RxJS/issues/3564)) ([9217a03](https://github.com/ReactiveX/RxJS/commit/9217a03))
+* **rxjs:** no longer requires `dom` lib ([#3566](https://github.com/ReactiveX/RxJS/issues/3566)) ([8b33ee2](https://github.com/ReactiveX/RxJS/commit/8b33ee2))
+* **throttleTime:** emit throttled values when complete if trailing=true ([#3559](https://github.com/ReactiveX/RxJS/issues/3559)) ([3e846f2](https://github.com/ReactiveX/RxJS/commit/3e846f2)), closes [#3351](https://github.com/ReactiveX/RxJS/issues/3351)
+* **websocket:** export WebSocketSubject, WebSocketSubjectConfig from rxjs/websocket ([#3557](https://github.com/ReactiveX/RxJS/issues/3557)) ([c365405](https://github.com/ReactiveX/RxJS/commit/c365405))
+
+
+
+<a name="6.0.0-ucandoit-rc.6"></a>
+# [6.0.0-ucandoit-rc.6](https://github.com/ReactiveX/RxJS/compare/6.0.0-uber-rc.5...v6.0.0-ucandoit-rc.6) (2018-04-13)
+
+
+### Bug Fixes
+
+* **migrations:** make sure collection.json is present ([63e10a8](https://github.com/ReactiveX/RxJS/commit/63e10a8))
+
+
+
+<a name="6.0.0-uber-rc.5"></a>
+# [6.0.0-uber-rc.5](https://github.com/ReactiveX/RxJS/compare/6.0.0-turbo-rc.4...6.0.0-uber-rc.5) (2018-04-13)
+
+
+### Bug Fixes
+
+* **migrations:** deploy compiled JS rather than just the TS files. ([9aed72f](https://github.com/ReactiveX/RxJS/commit/9aed72f))
+
+
+
+<a name="6.0.0-turbo-rc.4"></a>
+# [6.0.0-turbo-rc.4](https://github.com/ReactiveX/RxJS/compare/6.0.0-terrific-rc.3...6.0.0-turbo-rc.4) (2018-04-12)
+
+
+### Bug Fixes
+
+* **groupBy:** reexporting the GroupedObservable type ([#3556](https://github.com/ReactiveX/RxJS/issues/3556)) ([12d4933](https://github.com/ReactiveX/RxJS/commit/12d4933)), closes [#3551](https://github.com/ReactiveX/RxJS/issues/3551)
+* **migrations:** build now properly copies migration into package ([#3555](https://github.com/ReactiveX/RxJS/issues/3555)) ([329a145](https://github.com/ReactiveX/RxJS/commit/329a145))
+
+
+
+<a name="6.0.0-terrific-rc.3"></a>
+# [6.0.0-terrific-rc.3](https://github.com/ReactiveX/RxJS/compare/6.0.0-tenacious-rc.2...v6.0.0-terrific-rc.3) (2018-04-11)
+
+
+### Features
+
+* **schematics:** add migration schematics for schematics users ([20a2f07](https://github.com/ReactiveX/RxJS/commit/20a2f07))
+
+
+
+<a name="6.0.0-tenacious-rc.2"></a>
+# [6.0.0-tenacious-rc.2](https://github.com/ReactiveX/RxJS/compare/6.0.0-tactical-rc.1...v6.0.0-tenacious-rc.2) (2018-04-11)
+
+
+### Bug Fixes
+
+* **compat:** fix first & last operators so undefined arguments won't create empty values ([#3542](https://github.com/ReactiveX/RxJS/issues/3542)) ([a327db2](https://github.com/ReactiveX/RxJS/commit/a327db2))
+* **node/TS:** eliminate incompatable types to protected properties ([#3544](https://github.com/ReactiveX/RxJS/issues/3544)) ([21dd3bd](https://github.com/ReactiveX/RxJS/commit/21dd3bd))
+
+
+### BREAKING CHANGES
+
+* **NodeJS** Dropping support for non-LTS versions of Node.
+
 <a name="6.0.0-tactical-rc.1"></a>
 # [6.0.0-tactical-rc.1](https://github.com/ReactiveX/RxJS/compare/6.0.0-rc.0...6.0.0-tactical-rc.1) (2018-04-07)
 

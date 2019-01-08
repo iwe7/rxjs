@@ -5,6 +5,9 @@ import { SubscriptionLike } from './types';
 import { ObjectUnsubscribedError } from './util/ObjectUnsubscribedError';
 
 /**
+ * A variant of Subject that requires an initial value and emits its current
+ * value whenever it is subscribed to.
+ *
  * @class BehaviorSubject<T>
  */
 export class BehaviorSubject<T> extends Subject<T> {
@@ -17,7 +20,8 @@ export class BehaviorSubject<T> extends Subject<T> {
     return this.getValue();
   }
 
-  protected _subscribe(subscriber: Subscriber<T>): Subscription {
+  /** @deprecated This is an internal implementation detail, do not use. */
+  _subscribe(subscriber: Subscriber<T>): Subscription {
     const subscription = super._subscribe(subscriber);
     if (subscription && !(<SubscriptionLike>subscription).closed) {
       subscriber.next(this._value);

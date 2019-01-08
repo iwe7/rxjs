@@ -1,9 +1,12 @@
 import { expect } from 'chai';
 import { hot, expectObservable, expectSubscriptions } from '../helpers/marble-testing';
-import { first, mergeMap } from 'rxjs/operators';
+import { first, mergeMap, delay } from 'rxjs/operators';
+import { TestScheduler } from 'rxjs/testing';
 import { of, from, Observable, Subject, EmptyError } from 'rxjs';
 
 declare function asDiagram(arg: string): Function;
+
+declare const rxTestScheduler: TestScheduler;
 
 /** @test {first} */
 describe('Observable.prototype.first', () => {
@@ -101,6 +104,20 @@ describe('Observable.prototype.first', () => {
     expectSubscriptions(e1.subscriptions).toBe(e1subs);
   });
 
+  it('should unsubscribe when the first value is receiv', () => {
+    const source = hot('--a--b---c-|');
+    const subs =       '^ !';
+    const expected =   '----(a|)';
+
+    const duration = rxTestScheduler.createTime('--|');
+
+    expectObservable(source.pipe(
+      first(),
+      delay(duration, rxTestScheduler)
+    )).toBe(expected);
+    expectSubscriptions(source.subscriptions).toBe(subs);
+  });
+
   it('should return first value that matches a predicate', () => {
     const e1 = hot('--a-^--b--c--a--c--|');
     const expected =   '------(c|)';
@@ -132,7 +149,7 @@ describe('Observable.prototype.first', () => {
     const e1 = hot('--a-^--b--c--a--c--|');
     const expected =   '---------------(d|)';
     const sub =        '^              !';
-    expectObservable(e1.pipe(first(x => x === 's', 'd'))).toBe(expected);
+    expectObservable(e1.pipe(first<string>(x => x === 's', 'd'))).toBe(expected);
     expectSubscriptions(e1.subscriptions).toBe(sub);
   });
 
@@ -179,8 +196,8 @@ describe('Observable.prototype.first', () => {
       interface Baz { baz?: number; }
       class Foo implements Bar, Baz { constructor(public bar: string = 'name', public baz: number = 42) {} }
 
-      const isBar = (x: any): x is Bar => x && (<Bar>x).bar !== undefined;
-      const isBaz = (x: any): x is Baz => x && (<Baz>x).baz !== undefined;
+      const isBar = (x: any): x is Bar => x && (x as Bar).bar !== undefined;
+      const isBaz = (x: any): x is Baz => x && (x as Baz).baz !== undefined;
 
       const foo: Foo = new Foo();
       Observable.of(foo).pipe(first())
@@ -216,6 +233,12 @@ describe('Observable.prototype.first', () => {
 
       // missing predicate preserves the type
       xs.pipe(first()).subscribe(x => x); // x is still string | number
+
+      // null predicate preserves the type
+      xs.pipe(first(null)).subscribe(x => x); // x is still string | number
+
+      // undefined predicate preserves the type
+      xs.pipe(first(undefined)).subscribe(x => x); // x is still string | number
 
       // After the type guard `first` predicates, the type is narrowed to string
       xs.pipe(first(isString))

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
-import { defer, Observable } from 'rxjs';
+import { defer, Observable, of } from 'rxjs';
 import { hot, cold, expectObservable, expectSubscriptions } from '../helpers/marble-testing';
+import { mergeMap } from 'rxjs/operators';
 
 declare function asDiagram(arg: string): Function;
 
@@ -38,13 +39,13 @@ describe('defer', () => {
   it('should accept factory returns promise resolves', (done: MochaDone) => {
     const expected = 42;
     const e1 = defer(() => {
-      return new Promise((resolve: any) => { resolve(expected); });
+      return new Promise<number>((resolve: any) => { resolve(expected); });
     });
 
     e1.subscribe((x: number) => {
       expect(x).to.equal(expected);
       done();
-    }, x => {
+    }, (x: any) => {
       done(new Error('should not be called'));
     });
   });
@@ -52,12 +53,12 @@ describe('defer', () => {
   it('should accept factory returns promise rejects', (done: MochaDone) => {
     const expected = 42;
     const e1 = defer(() => {
-      return new Promise((resolve: any, reject: any) => { reject(expected); });
+      return new Promise<number>((resolve: any, reject: any) => { reject(expected); });
     });
 
     e1.subscribe((x: number) => {
       done(new Error('should not be called'));
-    }, x => {
+    }, (x: any) => {
       expect(x).to.equal(expected);
       done();
     }, () => {
@@ -103,8 +104,10 @@ describe('defer', () => {
     const expected =   '--a--b-     ';
     const unsub =      '      !     ';
 
-    const e1 = defer(() => source.mergeMap((x: string) => Observable.of(x)))
-      .mergeMap((x: string) => Observable.of(x));
+    const e1 = defer(() => source.pipe(
+      mergeMap((x: string) => of(x)),
+      mergeMap((x: string) => of(x))
+    ));
 
     expectObservable(e1, unsub).toBe(expected);
     expectSubscriptions(source.subscriptions).toBe(sourceSubs);

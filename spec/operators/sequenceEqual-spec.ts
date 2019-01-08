@@ -1,20 +1,23 @@
 import * as _ from 'lodash';
 import { hot, cold, expectObservable, expectSubscriptions, time } from '../helpers/marble-testing';
+import { sequenceEqual } from 'rxjs/operators';
+import { TestScheduler } from 'rxjs/testing';
 
 declare const type: Function;
 declare const asDiagram: Function;
+declare const rxTestScheduler: TestScheduler;
 const booleans = { T: true, F: false };
 
 /** @test {sequenceEqual} */
-describe('Observable.prototype.sequenceEqual', () => {
+describe('sequenceEqual operator', () => {
   asDiagram('sequenceEqual(observable)')('should return true for two equal sequences', () => {
     const s1 = hot('--a--^--b--c--d--e--f--g--|');
-    const s1subs =      '^                        !';
+    const s1subs =      '^                    !';
     const s2 = hot('-----^-----b--c--d-e-f------g-|');
     const s2subs =      '^                        !';
     const expected =    '-------------------------(T|)';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected, booleans);
     expectSubscriptions(s1.subscriptions).toBe(s1subs);
@@ -26,7 +29,7 @@ describe('Observable.prototype.sequenceEqual', () => {
     const s2 = cold('(abc|)');
     const expected = '(F|)';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected, booleans);
   });
@@ -36,19 +39,19 @@ describe('Observable.prototype.sequenceEqual', () => {
     const s2 = cold('(abcdefg|)');
     const expected = '(T|)';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected, booleans);
   });
 
   it('should return true for two observables that match when the last one emits and completes in the same frame', () => {
     const s1 = hot('--a--^--b--c--d--e--f--g--|');
-    const s1subs =      '^                        !';
+    const s1subs =      '^                    !';
     const s2 = hot('-----^--b--c--d--e--f--g------|');
     const s2subs =      '^                        !';
     const expected =    '-------------------------(T|)';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected, booleans);
     expectSubscriptions(s1.subscriptions).toBe(s1subs);
@@ -57,12 +60,12 @@ describe('Observable.prototype.sequenceEqual', () => {
 
   it('should return true for two observables that match when the last one emits and completes in the same frame', () => {
     const s1 = hot('--a--^--b--c--d--e--f--g--|');
-    const s1subs =      '^                        !';
+    const s1subs =      '^                    !';
     const s2 = hot('-----^--b--c--d--e--f---------(g|)');
     const s2subs =      '^                        !';
     const expected =    '-------------------------(T|)';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected, booleans);
     expectSubscriptions(s1.subscriptions).toBe(s1subs);
@@ -75,7 +78,7 @@ describe('Observable.prototype.sequenceEqual', () => {
     const expected =    '-----------#';
     const sub =         '^          !';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected, booleans);
     expectSubscriptions(s1.subscriptions).toBe(sub);
@@ -88,7 +91,7 @@ describe('Observable.prototype.sequenceEqual', () => {
     const expected =    '-----------#';
     const sub =         '^          !';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected, booleans);
     expectSubscriptions(s1.subscriptions).toBe(sub);
@@ -100,7 +103,7 @@ describe('Observable.prototype.sequenceEqual', () => {
     const s2 =  cold('---a--b--c--|');
     const expected = '#'; // throw
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected);
   });
@@ -110,7 +113,7 @@ describe('Observable.prototype.sequenceEqual', () => {
     const s2 =  cold('--a--b--c--|');
     const expected = '------------'; // never
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected);
   });
@@ -120,7 +123,7 @@ describe('Observable.prototype.sequenceEqual', () => {
     const s2 =  cold('------------'); // never
     const expected = '------------'; // never
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected);
   });
@@ -129,26 +132,28 @@ describe('Observable.prototype.sequenceEqual', () => {
     const s1 =  cold('|'); // empty
     const s2 =  cold('------a------');
     const expected = '------(F|)';
-    const subs =     '^     !';
+    const s1subs =   '(^!)';
+    const s2subs =   '^     !';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected, booleans);
-    expectSubscriptions(s1.subscriptions).toBe(subs);
-    expectSubscriptions(s2.subscriptions).toBe(subs);
+    expectSubscriptions(s1.subscriptions).toBe(s1subs);
+    expectSubscriptions(s2.subscriptions).toBe(s2subs);
   });
 
   it('should return false if compareTo is empty and source is not', () => {
     const s1 =  cold('------a------');
     const s2 =  cold('|'); // empty
     const expected = '------(F|)';
-    const subs =     '^     !';
+    const s1subs =   '^     !';
+    const s2subs =   '(^!)';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected, booleans);
-    expectSubscriptions(s1.subscriptions).toBe(subs);
-    expectSubscriptions(s2.subscriptions).toBe(subs);
+    expectSubscriptions(s1.subscriptions).toBe(s1subs);
+    expectSubscriptions(s2.subscriptions).toBe(s2subs);
   });
 
   it('should return never if compareTo is empty and source is never', () => {
@@ -156,7 +161,7 @@ describe('Observable.prototype.sequenceEqual', () => {
     const s2 = cold('|');
     const expected = '-';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected);
   });
@@ -166,7 +171,7 @@ describe('Observable.prototype.sequenceEqual', () => {
     const s2 = cold('-');
     const expected = '-';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected);
   });
@@ -179,14 +184,14 @@ describe('Observable.prototype.sequenceEqual', () => {
     const expected =    '-------------#';
 
     let i = 0;
-    const source = s1.sequenceEqual(s2, (a: any, b: any) => {
+    const source = s1.pipe(sequenceEqual(s2, (a: any, b: any) => {
       if (++i === 2) {
         throw new Error('shazbot');
       }
       return a.value === b.value;
-    });
+    }));
 
-    const values = {
+    const values: { [key: string]: any } = {
       a: null,
       b: { value: 'bees knees' },
       c: { value: 'carpy dumb' },
@@ -203,14 +208,14 @@ describe('Observable.prototype.sequenceEqual', () => {
 
   it('should use the provided comparor', () => {
     const s1 = hot('--a--^--b-----c------d--|');
-    const s1subs =      '^                        !';
+    const s1subs =      '^                  !';
     const s2 = hot('-----^--------x---y---z-------|');
     const s2subs =      '^                        !';
     const expected =    '-------------------------(T|)';
 
-    const source = s1.sequenceEqual(s2, (a: any, b: any) => a.value === b.value);
+    const source = s1.pipe(sequenceEqual(s2, (a: any, b: any) => a.value === b.value));
 
-    const values = {
+    const values: { [key: string]: any } = {
       a: null,
       b: { value: 'bees knees' },
       c: { value: 'carpy dumb' },
@@ -227,12 +232,12 @@ describe('Observable.prototype.sequenceEqual', () => {
 
   it('should return false for two unequal sequences, compareTo finishing last', () => {
     const s1 = hot('--a--^--b--c--d--e--f--g--|');
-    const s1subs =      '^                      !';
+    const s1subs =      '^                    !';
     const s2 = hot('-----^-----b--c--d-e-f------z-|');
     const s2subs =      '^                      !';
     const expected =    '-----------------------(F|)';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected, booleans);
     expectSubscriptions(s1.subscriptions).toBe(s1subs);
@@ -246,7 +251,7 @@ describe('Observable.prototype.sequenceEqual', () => {
     const s2subs =      '^         !';
     const expected =    '----------(F|)';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected, booleans);
     expectSubscriptions(s1.subscriptions).toBe(s1subs);
@@ -257,10 +262,10 @@ describe('Observable.prototype.sequenceEqual', () => {
     const s1 = hot('--a--^--b--c--d--e--f--g--h--|');
     const s1subs =      '^           !';
     const s2 = hot('-----^--b--c--d-|');
-    const s2subs =      '^           !';
+    const s2subs =      '^          !';
     const expected =    '------------(F|)';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected, booleans);
     expectSubscriptions(s1.subscriptions).toBe(s1subs);
@@ -269,12 +274,12 @@ describe('Observable.prototype.sequenceEqual', () => {
 
   it('should return false when the compareTo emits an extra value after the source completes', () => {
     const s1 = hot('--a--^--b--c--d-|');
-    const s1subs =      '^           !';
+    const s1subs =      '^          !';
     const s2 = hot('-----^--b--c--d--e--f--g--h--|');
     const s2subs =      '^           !';
     const expected =    '------------(F|)';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
 
     expectObservable(source).toBe(expected, booleans);
     expectSubscriptions(s1.subscriptions).toBe(s1subs);
@@ -286,7 +291,7 @@ describe('Observable.prototype.sequenceEqual', () => {
     const s2 =  cold('|');
     const expected = '(T|)';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
     expectObservable(source).toBe(expected, booleans);
   });
 
@@ -295,7 +300,7 @@ describe('Observable.prototype.sequenceEqual', () => {
     const s2 =  cold('---a--|');
     const expected = '---(F|)';
 
-    const source = s1.sequenceEqual(s2);
+    const source = s1.pipe(sequenceEqual(s2));
     expectObservable(source).toBe(expected, booleans);
   });
 
@@ -303,18 +308,18 @@ describe('Observable.prototype.sequenceEqual', () => {
     const s1 = hot('---a--^---b---c---d---e---f---g---h---i---j---|');
     const s2 = cold(     '----b---c-|');
     const expected1 =    '------------(F|)';
-    const subs1 =        '^           !';
+    const s2subs =       '^         !';
     const delay =        '-------------------|';
     const s3 = cold(                        '-f---g---h---i---j---|');
     const expected2 =    '                   ---------------------(T|)';
-    const subs2 =        '                   ^                    !';
+    const s3subs =       '                   ^                    !';
 
-    const test1 = s1.sequenceEqual(s2);
-    const test2 = s1.sequenceEqual(s3);
+    const test1 = s1.pipe(sequenceEqual(s2));
+    const test2 = s1.pipe(sequenceEqual(s3));
 
     expectObservable(test1).toBe(expected1, booleans);
     rxTestScheduler.schedule(() => expectObservable(test2).toBe(expected2, booleans), time(delay));
-    expectSubscriptions(s2.subscriptions).toBe(subs1);
-    expectSubscriptions(s3.subscriptions).toBe(subs2);
+    expectSubscriptions(s2.subscriptions).toBe(s2subs);
+    expectSubscriptions(s3.subscriptions).toBe(s3subs);
   });
 });

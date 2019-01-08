@@ -1,6 +1,7 @@
 /* Observable */
 export { Observable } from './internal/Observable';
 export { ConnectableObservable } from './internal/observable/ConnectableObservable';
+export { GroupedObservable } from './internal/operators/groupBy';
 export { Operator } from './internal/Operator';
 export { observable } from './internal/symbol/observable';
 
@@ -29,6 +30,7 @@ export { Notification } from './internal/Notification';
 export { pipe } from './internal/util/pipe';
 export { noop } from './internal/util/noop';
 export { identity } from './internal/util/identity';
+export { isObservable } from './internal/util/isObservable';
 
 /* Error types */
 export { ArgumentOutOfRangeError } from './internal/util/ArgumentOutOfRangeError';

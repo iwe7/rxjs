@@ -1,7 +1,8 @@
 import { hot, cold, expectObservable, expectSubscriptions } from '../helpers/marble-testing';
 import { TestScheduler } from 'rxjs/testing';
-import { of, EMPTY, NEVER, concat, throwError } from 'rxjs';
-import { mergeScan, delay, mergeMap } from 'rxjs/operators';
+import { of, defer, EMPTY, NEVER, concat, throwError } from 'rxjs';
+import { mergeScan, delay, mergeMap, takeWhile } from 'rxjs/operators';
+import { expect } from 'chai';
 
 declare const rxTestScheduler: TestScheduler;
 /** @test {mergeScan} */
@@ -66,7 +67,7 @@ describe('mergeScan', () => {
 
   it('should not stop ongoing async projections when source completes', () => {
     const e1 = hot('--a--^--b--c--d--e--f--g--|');
-    const e1subs =      '^                      !';
+    const e1subs =      '^                    !';
     const expected =    '--------u--v--w--x--y--(z|)';
 
     const values = {
@@ -136,6 +137,31 @@ describe('mergeScan', () => {
     expectSubscriptions(e1.subscriptions).toBe(e1subs);
   });
 
+  it('should stop listening to a synchronous observable when unsubscribed', () => {
+    const sideEffects: number[] = [];
+    const synchronousObservable = concat(
+      defer(() => {
+        sideEffects.push(1);
+        return of(1);
+      }),
+      defer(() => {
+        sideEffects.push(2);
+        return of(2);
+      }),
+      defer(() => {
+        sideEffects.push(3);
+        return of(3);
+      })
+    );
+
+    of(null).pipe(
+      mergeScan(() => synchronousObservable, 0),
+      takeWhile((x) => x != 2) // unsubscribe at the second side-effect
+    ).subscribe(() => { /* noop */ });
+
+    expect(sideEffects).to.deep.equal([1, 2]);
+  });
+
   it('should handle errors in the projection function', () => {
     const e1 = hot('--a--^--b--c--d--e--f--g--|');
     const e1subs =      '^        !';
@@ -183,7 +209,7 @@ describe('mergeScan', () => {
 
   it('should handle a never projected Observable', () => {
     const e1 = hot('--a--^--b--c--d--e--f--g--|');
-    const e1subs =      '^                     ';
+    const e1subs =      '^                    !';
     const expected =    '----------------------';
 
     const values = { x: <string[]>[] };
@@ -252,7 +278,7 @@ describe('mergeScan', () => {
 
   it('should mergescan projects cold Observable with single concurrency', () => {
     const e1 =   hot('--a--b--c--|');
-    const e1subs =   '^                                  !';
+    const e1subs =   '^          !';
 
     const inner = [
       cold(          '--d--e--f--|                      '),
@@ -293,7 +319,7 @@ describe('mergeScan', () => {
 
   it('should emit accumulator if inner completes without value after source completes', () => {
     const e1 = hot('--a--^--b--c--d--e--f--g--|');
-    const e1subs =      '^                      !';
+    const e1subs =      '^                    !';
     const expected =    '-----------------------(x|)';
 
     const source = e1.pipe(
@@ -306,7 +332,7 @@ describe('mergeScan', () => {
 
   it('should mergescan projects hot Observable with single concurrency', () => {
     const e1 =   hot('---a---b---c---|');
-    const e1subs =   '^                           !';
+    const e1subs =   '^              !';
 
     const inner = [
       hot(         '--d--e--f--|'),
@@ -336,7 +362,7 @@ describe('mergeScan', () => {
 
   it('should mergescan projects cold Observable with dual concurrency', () => {
     const e1 =   hot('----a----b----c----|');
-    const e1subs =   '^                                 !';
+    const e1subs =   '^                  !';
 
     const inner = [
       cold(            '---d---e---f---|               '),
@@ -366,7 +392,7 @@ describe('mergeScan', () => {
 
   it('should mergescan projects hot Observable with dual concurrency', () => {
     const e1 =   hot('---a---b---c---|');
-    const e1subs =   '^                           !';
+    const e1subs =   '^              !';
 
     const inner = [
       hot(         '--d--e--f--|'),

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { TestScheduler } from 'rxjs/testing';
-import { asyncScheduler, of, from, Observable, asapScheduler, Observer } from 'rxjs';
+import { asyncScheduler, of, from, Observable, asapScheduler, Observer, observable, Subject } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 // tslint:disable:no-any
 declare const asDiagram: any;
@@ -33,7 +34,7 @@ describe('from', () => {
     expect(r).to.throw();
   });
 
-  type('should return T for ObservableLike objects', () => {
+  type('should return T for InteropObservable objects', () => {
     /* tslint:disable:no-unused-variable */
     const o1: Observable<number> = from([] as number[], asapScheduler);
     const o2: Observable<{ a: string }> = from(Observable.empty());
@@ -48,7 +49,7 @@ describe('from', () => {
   });
 
   const fakervable = <T>(...values: T[]) => ({
-    [Symbol.observable]: () => ({
+    [observable]: () => ({
       subscribe: (observer: Observer<T>) => {
         for (const value of values) {
           observer.next(value);
@@ -57,6 +58,21 @@ describe('from', () => {
       }
     })
   });
+
+  const fakeArrayObservable = <T>(...values: T[]) => {
+    let arr = ['bad array!'];
+    arr[observable] = () =>  {
+      return {
+        subscribe: (observer: Observer<T>) => {
+          for (const value of values) {
+            observer.next(value);
+          }
+          observer.complete();
+        }
+      };
+    };
+    return arr;
+  };
 
   const fakerator = <T>(...values: T[]) => ({
     [Symbol.iterator as symbol]: () => {
@@ -74,6 +90,7 @@ describe('from', () => {
   const sources: Array<{ name: string, value: any }> = [
     { name: 'observable', value: of('x') },
     { name: 'observable-like', value: fakervable('x') },
+    { name: 'observable-like-array', value: fakeArrayObservable('x') },
     { name: 'array', value: ['x'] },
     { name: 'promise', value: Promise.resolve('x') },
     { name: 'iterator', value: fakerator('x') },
@@ -117,6 +134,27 @@ describe('from', () => {
           }
         );
       expect(nextInvoked).to.equal(false);
+    });
+    it(`should accept a function`, (done) => {
+      const subject = new Subject();
+      const handler = (...args: any[]) => subject.next(...args);
+      handler[observable] = () => subject;
+      let nextInvoked = false;
+
+      from((handler as any)).pipe(first()).subscribe(
+        (x) => {
+          nextInvoked = true;
+          expect(x).to.equal('x');
+        },
+        (x) => {
+          done(new Error('should not be called'));
+        },
+        () => {
+          expect(nextInvoked).to.equal(true);
+          done();
+        }
+      );
+      handler('x');
     });
   }
 });

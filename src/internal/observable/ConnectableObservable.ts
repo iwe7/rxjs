@@ -17,12 +17,13 @@ export class ConnectableObservable<T> extends Observable<T> {
   /** @internal */
   _isComplete = false;
 
-  constructor(protected source: Observable<T>,
+  constructor(public source: Observable<T>,
               protected subjectFactory: () => Subject<T>) {
     super();
   }
 
-  protected _subscribe(subscriber: Subscriber<T>) {
+  /** @deprecated This is an internal implementation detail, do not use. */
+  _subscribe(subscriber: Subscriber<T>) {
     return this.getSubject().subscribe(subscriber);
   }
 
@@ -157,11 +158,11 @@ class RefCountSubscriber<T> extends Subscriber<T> {
     // supply the RefCountSubscriber with the shared connection Subscription.
     // For example:
     // ```
-    // Observable.range(0, 10)
-    //   .publish()
-    //   .refCount()
-    //   .take(5)
-    //   .subscribe();
+    // range(0, 10).pipe(
+    //   publish(),
+    //   refCount(),
+    //   take(5),
+    // ).subscribe();
     // ```
     // In order to account for this case, RefCountSubscriber should only dispose
     // the ConnectableObservable's shared connection Subscription if the

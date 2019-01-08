@@ -18,7 +18,7 @@ import { MonoTypeOperatorFunction, TeardownLogic } from '../types';
  * calls `complete` or `error`, then this method will call `complete` or `error` on the child subscription. Otherwise
  * this method will resubscribe to the source Observable.
  *
- * <img src="./img/repeatWhen.png" width="100%">
+ * ![](repeatWhen.png)
  *
  * @param {function(notifications: Observable): Observable} notifier - Receives an Observable of notifications with
  * which a user can `complete` or `error`, aborting the repetition.
@@ -86,7 +86,8 @@ class RepeatWhenSubscriber<T, R> extends OuterSubscriber<T, R> {
     }
   }
 
-  protected _unsubscribe() {
+  /** @deprecated This is an internal implementation detail, do not use. */
+  _unsubscribe() {
     const { notifications, retriesSubscription } = this;
     if (notifications) {
       notifications.unsubscribe();
@@ -99,7 +100,8 @@ class RepeatWhenSubscriber<T, R> extends OuterSubscriber<T, R> {
     this.retries = null;
   }
 
-  protected _unsubscribeAndRecycle(): Subscriber<T> {
+  /** @deprecated This is an internal implementation detail, do not use. */
+  _unsubscribeAndRecycle(): Subscriber<T> {
     const { _unsubscribe } = this;
 
     this._unsubscribe = null;

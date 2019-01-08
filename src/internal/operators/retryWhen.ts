@@ -18,7 +18,7 @@ import { MonoTypeOperatorFunction, TeardownLogic } from '../types';
  * If that Observable calls `complete` or `error` then this method will call `complete` or `error` on the child
  * subscription. Otherwise this method will resubscribe to the source Observable.
  *
- * <img src="./img/retryWhen.png" width="100%">
+ * ![](retryWhen.png)
  *
  * @param {function(errors: Observable): Observable} notifier - Receives an Observable of notifications with which a
  * user can `complete` or `error`, aborting the retry.
@@ -86,7 +86,8 @@ class RetryWhenSubscriber<T, R> extends OuterSubscriber<T, R> {
     }
   }
 
-  protected _unsubscribe() {
+  /** @deprecated This is an internal implementation detail, do not use. */
+  _unsubscribe() {
     const { errors, retriesSubscription } = this;
     if (errors) {
       errors.unsubscribe();

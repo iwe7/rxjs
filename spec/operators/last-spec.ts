@@ -122,8 +122,8 @@ describe('Observable.prototype.last', () => {
       interface Baz { baz?: number; }
       class Foo implements Bar, Baz { constructor(public bar: string = 'name', public baz: number = 42) {} }
 
-      const isBar = (x: any): x is Bar => x && (<Bar>x).bar !== undefined;
-      const isBaz = (x: any): x is Baz => x && (<Baz>x).baz !== undefined;
+      const isBar = (x: any): x is Bar => x && (x as Bar).bar !== undefined;
+      const isBaz = (x: any): x is Baz => x && (x as Baz).baz !== undefined;
 
       const foo: Foo = new Foo();
       of(foo).pipe(last())
@@ -160,10 +160,14 @@ describe('Observable.prototype.last', () => {
       // missing predicate preserves the type
       xs.pipe(last()).subscribe(x => x); // x is still string | number
 
+      // null predicate preserves the type
+      xs.pipe(last(null)).subscribe(x => x); // x is still string | number
+
+      // undefined predicate preserves the type
+      xs.pipe(last(undefined)).subscribe(x => x); // x is still string | number
+
       // After the type guard `last` predicates, the type is narrowed to string
       xs.pipe(last(isString))
-        .subscribe(s => s.length); // s is string
-      xs.pipe(last(isString, s => s.substr(0))) // s is string in predicate)
         .subscribe(s => s.length); // s is string
 
       // boolean predicates preserve the type

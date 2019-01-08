@@ -80,6 +80,8 @@ Before you submit your Pull Request (PR) consider the following guidelines:
     git push -f
     ```
 
+  * When updating your feature branch with the requested changes, please do not overwrite the commit history, but rather contain the changes in new commits. This is for the sake of a clearer and easier review process.
+
 That's it! Thank you for your contribution!
 
 
@@ -122,9 +124,12 @@ from the main (upstream) repository:
 
 ## Documentation
 
-- Documentation of RxJs will be shortly inline and more detailed in [rxjs-docs](https://github.com/ReactiveX/rxjs-docs)
-- The [Documentation Guidelines](https://github.com/ReactiveX/rxjs-docs/blob/master/DOCUMENTATION_GUIDELINES.md) will support you
-- Please keep both documents up to date
+- The documentation is auto-generated directly from the source code.
+- In short: From the source code we generate JSON documents, describing each operator, function ... and render this JSON within an Angular application
+- The folder `docs-app` contains everything you need for building and developing the docs
+- the folder `doc` used to be the documentation, but should remain until all content is transferred.
+- The [Documentation README](docs_app/README.md) will support you
+- After a PR is merged to master the docs will be published to https://rxjs-dev.firebaseapp.com/
 
 ## Unit Tests
 

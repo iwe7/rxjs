@@ -16,13 +16,13 @@ export interface WebSocketSubjectConfig<T> {
   /** @deprecated use {@link deserializer} */
   resultSelector?: (e: MessageEvent) => T;
   /**
-   * A serializer used for messages arriving on the over the socket from the
-   * server. Defaults to JSON.parse.
+   * A serializer used to create messages from passed values before the
+   * messages are sent to the server. Defaults to JSON.stringify.
    */
   serializer?: (value: T) => WebSocketMessage;
   /**
-   * A deserializer used to create messages from passed values before the
-   * messages are sent to the server. Defaults to JSON.stringify
+   * A deserializer used for messages arriving on the socket from the
+   * server. Defaults to JSON.parse.
    */
   deserializer?: (e: MessageEvent) => T;
   /**
@@ -30,7 +30,7 @@ export interface WebSocketSubjectConfig<T> {
    */
   openObserver?: NextObserver<Event>;
   /**
-   * An Observer than watches when close events occur on the underlying websocket
+   * An Observer than watches when close events occur on the underlying webSocket
    */
   closeObserver?: NextObserver<CloseEvent>;
   /**
@@ -59,16 +59,12 @@ const WEBSOCKETSUBJECT_INVALID_ERROR_OBJECT =
 
 export type WebSocketMessage = string | ArrayBuffer | Blob | ArrayBufferView;
 
-/**
- * We need this JSDoc comment for affecting ESDoc.
- * @extends {Ignored}
- * @hide true
- */
 export class WebSocketSubject<T> extends AnonymousSubject<T> {
 
   private _config: WebSocketSubjectConfig<T>;
 
-  protected _output: Subject<T>;
+  /** @deprecated This is an internal implementation detail, do not use. */
+  _output: Subject<T>;
 
   private _socket: WebSocket;
 
@@ -79,7 +75,6 @@ export class WebSocketSubject<T> extends AnonymousSubject<T> {
       this.source = urlConfigOrSource as Observable<T>;
     } else {
       const config = this._config = { ...DEFAULT_WEBSOCKET_CONFIG };
-      config.WebSocketCtor = WebSocket;
       this._output = new Subject<T>();
       if (typeof urlConfigOrSource === 'string') {
         config.url = urlConfigOrSource;
@@ -90,7 +85,10 @@ export class WebSocketSubject<T> extends AnonymousSubject<T> {
           }
         }
       }
-      if (!config.WebSocketCtor) {
+
+      if (!config.WebSocketCtor && WebSocket) {
+        config.WebSocketCtor = WebSocket;
+      } else if (!config.WebSocketCtor) {
         throw new Error('no WebSocket constructor can be found');
       }
       this.destination = new ReplaySubject();
@@ -100,6 +98,7 @@ export class WebSocketSubject<T> extends AnonymousSubject<T> {
   lift<R>(operator: Operator<T, R>): WebSocketSubject<R> {
     const sock = new WebSocketSubject<R>(this._config as WebSocketSubjectConfig<any>, <any> this.destination);
     sock.operator = operator;
+    sock.source = this;
     return sock;
   }
 
@@ -113,7 +112,7 @@ export class WebSocketSubject<T> extends AnonymousSubject<T> {
 
   /**
    * Creates an {@link Observable}, that when subscribed to, sends a message,
-   * defined be the `subMsg` function, to the server over the socket to begin a
+   * defined by the `subMsg` function, to the server over the socket to begin a
    * subscription to data over that socket. Once data arrives, the
    * `messageFilter` argument will be used to select the appropriate data for
    * the resulting Observable. When teardown occurs, either due to
@@ -263,7 +262,8 @@ export class WebSocketSubject<T> extends AnonymousSubject<T> {
     };
   }
 
-  protected _subscribe(subscriber: Subscriber<T>): Subscription {
+  /** @deprecated This is an internal implementation detail, do not use. */
+  _subscribe(subscriber: Subscriber<T>): Subscription {
     const { source } = this;
     if (source) {
       return source.subscribe(subscriber);
@@ -271,9 +271,8 @@ export class WebSocketSubject<T> extends AnonymousSubject<T> {
     if (!this._socket) {
       this._connectSocket();
     }
-    let subscription = new Subscription();
-    subscription.add(this._output.subscribe(subscriber));
-    subscription.add(() => {
+    this._output.subscribe(subscriber);
+    subscriber.add(() => {
       const { _socket } = this;
       if (this._output.observers.length === 0) {
         if (_socket && _socket.readyState === 1) {
@@ -282,7 +281,7 @@ export class WebSocketSubject<T> extends AnonymousSubject<T> {
         this._resetState();
       }
     });
-    return subscription;
+    return subscriber;
   }
 
   unsubscribe() {

@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import * as Rx from 'rxjs/Rx';
-
-const Subscriber = Rx.Subscriber;
+import { SafeSubscriber } from 'rxjs/internal/Subscriber';
+import { Subscriber } from 'rxjs';
 
 /** @test {Subscriber} */
 describe('Subscriber', () => {
@@ -18,6 +17,18 @@ describe('Subscriber', () => {
     sub.next();
 
     expect(times).to.equal(2);
+  });
+
+  it('should wrap unsafe observers in a safe subscriber', () => {
+    const observer = {
+      next(x: any) { /* noop */ },
+      error(err: any) { /* noop */ },
+      complete() { /* noop */ }
+    };
+
+    const subscriber = new Subscriber(observer);
+    expect((subscriber as any).destination).not.to.equal(observer);
+    expect((subscriber as any).destination).to.be.an.instanceof(SafeSubscriber);
   });
 
   it('should ignore error messages after unsubscription', () => {
